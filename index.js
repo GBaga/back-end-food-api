@@ -2,6 +2,9 @@ import express from "express";
 import mongoose from "mongoose";
 import productRoute from "./routes/product.route.js";
 import cors from "cors";
+import authRoute from "./routes/auth.route.js";
+import orderRoute from "./routes/order.route.js";
+import cartRoute from "./routes/cart.route.js";
 
 const app = express();
 
@@ -13,6 +16,9 @@ app.use(express.urlencoded({ extended: false }));
 
 //routes
 app.use("/api/products", productRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/orders", orderRoute);
+app.use("/api/cart", cartRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello World x");
