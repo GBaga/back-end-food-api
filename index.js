@@ -21,7 +21,7 @@ app.use("/api/orders", orderRoute);
 app.use("/api/cart", cartRoute);
 
 app.get("/", (req, res) => {
-  res.send("Hello World x");
+  res.send("Hello World from Food Api Backend");
 });
 
 const conString =
