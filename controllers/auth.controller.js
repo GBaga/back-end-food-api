@@ -37,7 +37,10 @@ const login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    login(res.data.token, res.data.user);
+    res.status(200).json({
+      token,
+      user: { name: user.name, email: user.email, isAdmin: user.isAdmin },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -52,5 +55,3 @@ const getMe = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-export { register, login, getMe };
