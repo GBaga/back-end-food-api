@@ -10,7 +10,7 @@ const authMiddleware = (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, "secretkey");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Set both id and _id to ensure compatibility
     req.user = {
@@ -21,7 +21,13 @@ const authMiddleware = (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(401).json({ message: "Token is invalid or expired" });
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token has expired" });
+    } else if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Token is invalid" });
+    } else {
+      return res.status(500).json({ message: "Internal server error" });
+    }
   }
 };
 
