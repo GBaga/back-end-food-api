@@ -7,10 +7,10 @@ import orderRoute from "./routes/order.route.js";
 import cartRoute from "./routes/cart.route.js";
 import dotenv from "dotenv";
 
+dotenv.config();
 const app = express();
 
 app.use(cors());
-dotenv.config();
 
 //middleware
 app.use(express.json());
@@ -38,3 +38,5 @@ mongoose
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
+
+console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
