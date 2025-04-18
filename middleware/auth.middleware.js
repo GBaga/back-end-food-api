@@ -11,16 +11,17 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded token:", decoded); // Log decoded token for debugging
 
-    // Set both id and _id to ensure compatibility
     req.user = {
-      id: decoded.id, // Keep this for existing controller references
-      _id: decoded.id, // This is technically more standard for MongoDB
+      id: decoded.id,
+      _id: decoded.id,
       isAdmin: decoded.isAdmin,
     };
 
     next();
   } catch (error) {
+    console.error("JWT verification error:", error); // Log error for debugging
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Token has expired" });
     } else if (error.name === "JsonWebTokenError") {

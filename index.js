@@ -5,10 +5,12 @@ import cors from "cors";
 import authRoute from "./routes/auth.route.js";
 import orderRoute from "./routes/order.route.js";
 import cartRoute from "./routes/cart.route.js";
+import dotenv from "dotenv";
 
 const app = express();
 
 app.use(cors());
+dotenv.config();
 
 //middleware
 app.use(express.json());
