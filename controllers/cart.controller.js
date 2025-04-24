@@ -31,6 +31,7 @@ export const getCart = async (req, res) => {
 // Add item to cart
 export const addItemToCart = async (req, res) => {
   try {
+    console.log("Received addToCart request body:", req.body); // Log the incoming request body
     const userId = req.user.id;
     const { productId, quantity } = req.body;
 
@@ -39,6 +40,13 @@ export const addItemToCart = async (req, res) => {
         .status(400)
         .json({ message: "ProductId and quantity are required" });
     }
+
+    // Continue with the rest of the logic...
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
     // Validate product exists
     const product = await Product.findById(productId);
