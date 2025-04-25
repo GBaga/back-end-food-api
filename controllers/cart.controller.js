@@ -41,13 +41,6 @@ export const addItemToCart = async (req, res) => {
         .json({ message: "ProductId and quantity are required" });
     }
 
-    // Continue with the rest of the logic...
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-
     // Validate product exists
     const product = await Product.findById(productId);
     if (!product) {
