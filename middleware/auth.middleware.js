@@ -11,17 +11,17 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("Decoded token:", decoded); // Log decoded token for debugging
+    console.log("✅ Decoded token:", decoded);
 
     req.user = {
-      id: decoded.id,
-      _id: decoded.id,
+      id: decoded.id, // Ensure 'id' comes from decoded token
       isAdmin: decoded.isAdmin,
     };
 
     next();
   } catch (error) {
-    console.error("JWT verification error:", error); // Log error for debugging
+    console.error("❌ JWT verification error:", error);
+
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({ message: "Token has expired" });
     } else if (error.name === "JsonWebTokenError") {
