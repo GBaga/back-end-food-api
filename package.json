@@ -12,7 +12,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -23,5 +22,15 @@
     "mongoose": "^8.13.2",
     "nodemon": "^3.1.9",
     "user-api": "file:"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GBaga/back-end-food-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GBaga/back-end-food-api/issues"
+  },
+  "homepage": "https://github.com/GBaga/back-end-food-api#readme",
+  "description": ""
 }
