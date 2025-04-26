@@ -1,6 +1,5 @@
 import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
-import mongoose from "mongoose";
 
 // Get user's cart
 export const getCart = async (req, res) => {
@@ -13,7 +12,6 @@ export const getCart = async (req, res) => {
     });
 
     if (!cart) {
-      // If no cart exists, create an empty one
       cart = new Cart({
         user: userId,
         items: [],
@@ -24,6 +22,7 @@ export const getCart = async (req, res) => {
 
     res.status(200).json(cart);
   } catch (error) {
+    console.error("Error getting cart:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -51,7 +50,6 @@ export const addItemToCart = async (req, res) => {
       return res.status(400).json({ message: "Product is not available" });
     }
 
-    // Find or create cart
     let cart = await Cart.findOne({ user: userId });
 
     if (!cart) {
@@ -62,7 +60,6 @@ export const addItemToCart = async (req, res) => {
       });
     }
 
-    // Check if item exists
     const existingItemIndex = cart.items.findIndex(
       (item) => item.product.toString() === productId
     );
@@ -76,23 +73,23 @@ export const addItemToCart = async (req, res) => {
       });
     }
 
-    // Recalculate totalAmount BEFORE save
-    cart.totalAmount = cart.items.reduce(async (totalPromise, item) => {
-      const total = await totalPromise;
-      const prod = await Product.findById(item.product);
-      return total + prod.price * item.quantity;
-    }, Promise.resolve(0));
+    await cart.save(); // ✅ Save before populate
 
-    await cart.save(); // ✅ SAVE first!
-
-    const populatedCart = await Cart.findById(cart._id).populate({
+    await cart.populate({
       path: "items.product",
       select: "name price imageUrl",
-    }); // ✅ POPULATE AFTER save
+    });
 
-    res.status(200).json(populatedCart);
+    cart.totalAmount = cart.items.reduce(
+      (total, item) => total + (item.product?.price || 0) * item.quantity,
+      0
+    );
+
+    await cart.save(); // ✅ Save updated totalAmount
+
+    res.status(200).json(cart);
   } catch (error) {
-    console.error(error); // ✅ log error for debug
+    console.error("Error adding item to cart:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -113,14 +110,12 @@ export const updateCartItem = async (req, res) => {
       return res.status(400).json({ message: "Quantity must be at least 1" });
     }
 
-    // Find the cart
     let cart = await Cart.findOne({ user: userId });
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
 
-    // Find the item in the cart
     const itemIndex = cart.items.findIndex(
       (item) => item.product.toString() === productId
     );
@@ -129,17 +124,16 @@ export const updateCartItem = async (req, res) => {
       return res.status(404).json({ message: "Item not found in cart" });
     }
 
-    // Update quantity
     cart.items[itemIndex].quantity = quantity;
 
-    // Recalculate total amount
-    cart = await cart.populate({
+    await cart.save();
+    await cart.populate({
       path: "items.product",
-      select: "name price",
+      select: "name price imageUrl",
     });
 
     cart.totalAmount = cart.items.reduce(
-      (total, item) => total + item.product.price * item.quantity,
+      (total, item) => total + (item.product?.price || 0) * item.quantity,
       0
     );
 
@@ -147,6 +141,7 @@ export const updateCartItem = async (req, res) => {
 
     res.status(200).json(cart);
   } catch (error) {
+    console.error("Error updating cart item:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -157,26 +152,24 @@ export const removeCartItem = async (req, res) => {
     const userId = req.user.id;
     const { productId } = req.params;
 
-    // Find the cart
     let cart = await Cart.findOne({ user: userId });
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
 
-    // Remove the item from the cart
     cart.items = cart.items.filter(
       (item) => item.product.toString() !== productId
     );
 
-    // Recalculate total amount
-    cart = await cart.populate({
+    await cart.save();
+    await cart.populate({
       path: "items.product",
-      select: "name price",
+      select: "name price imageUrl",
     });
 
     cart.totalAmount = cart.items.reduce(
-      (total, item) => total + item.product.price * item.quantity,
+      (total, item) => total + (item.product?.price || 0) * item.quantity,
       0
     );
 
@@ -184,6 +177,7 @@ export const removeCartItem = async (req, res) => {
 
     res.status(200).json(cart);
   } catch (error) {
+    console.error("Error removing item from cart:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -193,14 +187,12 @@ export const clearCart = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Find the cart
     const cart = await Cart.findOne({ user: userId });
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
     }
 
-    // Clear items and reset total
     cart.items = [];
     cart.totalAmount = 0;
 
@@ -208,6 +200,7 @@ export const clearCart = async (req, res) => {
 
     res.status(200).json({ message: "Cart cleared successfully", cart });
   } catch (error) {
+    console.error("Error clearing cart:", error);
     res.status(500).json({ message: error.message });
   }
 };
