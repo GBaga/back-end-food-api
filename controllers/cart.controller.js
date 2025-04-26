@@ -4,7 +4,7 @@ import Product from "../models/product.model.js";
 // Get user's cart
 export const getCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id; // Changed from req.user.id to req.user._id
 
     let cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
@@ -31,7 +31,7 @@ export const getCart = async (req, res) => {
 export const addItemToCart = async (req, res) => {
   try {
     console.log("Received addToCart request body:", req.body);
-    const userId = req.user.id;
+    const userId = req.user._id; // Changed from req.user.id to req.user._id
     const { productId, quantity } = req.body;
 
     if (!productId || !quantity) {
@@ -97,7 +97,7 @@ export const addItemToCart = async (req, res) => {
 // Update cart item quantity
 export const updateCartItem = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id; // Changed from req.user.id to req.user._id
     const { productId, quantity } = req.body;
 
     if (!productId || !quantity) {
@@ -149,7 +149,7 @@ export const updateCartItem = async (req, res) => {
 // Remove item from cart
 export const removeCartItem = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id; // Changed from req.user.id to req.user._id
     const { productId } = req.params;
 
     let cart = await Cart.findOne({ user: userId });
@@ -185,7 +185,7 @@ export const removeCartItem = async (req, res) => {
 // Clear cart
 export const clearCart = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id; // Changed from req.user.id to req.user._id
 
     const cart = await Cart.findOne({ user: userId });
 
