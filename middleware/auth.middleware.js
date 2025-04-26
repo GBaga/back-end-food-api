@@ -14,8 +14,7 @@ const authMiddleware = (req, res, next) => {
     console.log("Decoded token:", decoded); // Log decoded token for debugging
 
     req.user = {
-      id: decoded.id,
-      _id: decoded.id,
+      _id: decoded._id, // Only use _id consistently
       isAdmin: decoded.isAdmin,
     };
 

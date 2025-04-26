@@ -39,7 +39,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, isAdmin: user.isAdmin },
+      { _id: user._id, isAdmin: user.isAdmin }, // Consistently use _id
       process.env.JWT_SECRET,
       {
         expiresIn: "7d",
@@ -49,14 +49,14 @@ export const login = async (req, res) => {
     console.log("Login successful");
     res.json({ token });
   } catch (error) {
-    console.error("Login error:", error); // 💥 <-- HERE!!
+    console.error("Login error:", error);
     res.status(500).json({ message: error.message || "Server Error" });
   }
 };
 
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
+    const user = await User.findById(req.user._id).select("-password"); // Use _id consistently
     if (!user) return res.status(404).json({ message: "User not found" });
     res.status(200).json(user);
   } catch (error) {
