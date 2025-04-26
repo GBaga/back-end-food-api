@@ -31,7 +31,7 @@ export const getCart = async (req, res) => {
 // Add item to cart
 export const addItemToCart = async (req, res) => {
   try {
-    console.log("Received addToCart request body:", req.body); // Log the incoming request body
+    console.log("Received addToCart request body:", req.body);
     const userId = req.user.id;
     const { productId, quantity } = req.body;
 
@@ -47,12 +47,11 @@ export const addItemToCart = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Check if product is available
     if (!product.isAvailable) {
       return res.status(400).json({ message: "Product is not available" });
     }
 
-    // Find or create cart for the user
+    // Find or create cart
     let cart = await Cart.findOne({ user: userId });
 
     if (!cart) {
@@ -63,38 +62,37 @@ export const addItemToCart = async (req, res) => {
       });
     }
 
-    // Check if the product already exists in the cart
+    // Check if item exists
     const existingItemIndex = cart.items.findIndex(
       (item) => item.product.toString() === productId
     );
 
     if (existingItemIndex > -1) {
-      // If item exists in cart, update quantity
       cart.items[existingItemIndex].quantity += quantity;
     } else {
-      // Add new item to cart
       cart.items.push({
         product: productId,
         quantity,
       });
     }
 
-    // Calculate total amount
-    cart = await cart.populate({
+    // Recalculate totalAmount BEFORE save
+    cart.totalAmount = cart.items.reduce(async (totalPromise, item) => {
+      const total = await totalPromise;
+      const prod = await Product.findById(item.product);
+      return total + prod.price * item.quantity;
+    }, Promise.resolve(0));
+
+    await cart.save(); // ✅ SAVE first!
+
+    const populatedCart = await Cart.findById(cart._id).populate({
       path: "items.product",
-      select: "name price",
-    });
+      select: "name price imageUrl",
+    }); // ✅ POPULATE AFTER save
 
-    cart.totalAmount = cart.items.reduce(
-      (total, item) => total + item.product.price * item.quantity,
-      0
-    );
-
-    await cart.save();
-
-    // Return the updated cart
-    res.status(200).json(cart);
+    res.status(200).json(populatedCart);
   } catch (error) {
+    console.error(error); // ✅ log error for debug
     res.status(500).json({ message: error.message });
   }
 };
