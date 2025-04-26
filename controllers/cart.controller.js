@@ -1,23 +1,37 @@
 import Cart from "../models/cart.model.js";
 import Product from "../models/product.model.js";
+import mongoose from "mongoose";
 
 // Get user's cart
 export const getCart = async (req, res) => {
   try {
-    const userId = req.user._id; // Changed from req.user.id to req.user._id
+    console.log("User object in getCart:", req.user);
+
+    const userId = req.user._id;
+
+    // Make sure userId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    console.log("Looking for cart with userId:", userId);
 
     let cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
       select: "name price imageUrl",
     });
 
+    console.log("Found cart:", cart);
+
     if (!cart) {
+      console.log("No cart found, creating new cart");
       cart = new Cart({
         user: userId,
         items: [],
         totalAmount: 0,
       });
       await cart.save();
+      console.log("New cart created:", cart);
     }
 
     res.status(200).json(cart);
@@ -31,7 +45,9 @@ export const getCart = async (req, res) => {
 export const addItemToCart = async (req, res) => {
   try {
     console.log("Received addToCart request body:", req.body);
-    const userId = req.user._id; // Changed from req.user.id to req.user._id
+    console.log("User in addToCart:", req.user);
+
+    const userId = req.user._id;
     const { productId, quantity } = req.body;
 
     if (!productId || !quantity) {
@@ -50,9 +66,17 @@ export const addItemToCart = async (req, res) => {
       return res.status(400).json({ message: "Product is not available" });
     }
 
-    let cart = await Cart.findOne({ user: userId });
+    // First try to find by string representation
+    let cart = await Cart.findOne({ user: userId.toString() });
 
+    // If not found, try with the ObjectId directly
     if (!cart) {
+      cart = await Cart.findOne({ user: userId });
+    }
+
+    // If still not found, create a new cart
+    if (!cart) {
+      console.log("Creating new cart for user:", userId);
       cart = new Cart({
         user: userId,
         items: [],
@@ -97,7 +121,7 @@ export const addItemToCart = async (req, res) => {
 // Update cart item quantity
 export const updateCartItem = async (req, res) => {
   try {
-    const userId = req.user._id; // Changed from req.user.id to req.user._id
+    const userId = req.user._id;
     const { productId, quantity } = req.body;
 
     if (!productId || !quantity) {
@@ -110,7 +134,13 @@ export const updateCartItem = async (req, res) => {
       return res.status(400).json({ message: "Quantity must be at least 1" });
     }
 
-    let cart = await Cart.findOne({ user: userId });
+    // First try to find by string representation
+    let cart = await Cart.findOne({ user: userId.toString() });
+
+    // If not found, try with the ObjectId directly
+    if (!cart) {
+      cart = await Cart.findOne({ user: userId });
+    }
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
@@ -149,10 +179,16 @@ export const updateCartItem = async (req, res) => {
 // Remove item from cart
 export const removeCartItem = async (req, res) => {
   try {
-    const userId = req.user._id; // Changed from req.user.id to req.user._id
+    const userId = req.user._id;
     const { productId } = req.params;
 
-    let cart = await Cart.findOne({ user: userId });
+    // First try to find by string representation
+    let cart = await Cart.findOne({ user: userId.toString() });
+
+    // If not found, try with the ObjectId directly
+    if (!cart) {
+      cart = await Cart.findOne({ user: userId });
+    }
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
@@ -185,9 +221,15 @@ export const removeCartItem = async (req, res) => {
 // Clear cart
 export const clearCart = async (req, res) => {
   try {
-    const userId = req.user._id; // Changed from req.user.id to req.user._id
+    const userId = req.user._id;
 
-    const cart = await Cart.findOne({ user: userId });
+    // First try to find by string representation
+    let cart = await Cart.findOne({ user: userId.toString() });
+
+    // If not found, try with the ObjectId directly
+    if (!cart) {
+      cart = await Cart.findOne({ user: userId });
+    }
 
     if (!cart) {
       return res.status(404).json({ message: "Cart not found" });
