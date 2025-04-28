@@ -10,7 +10,14 @@ import dotenv from "dotenv";
 dotenv.config();
 const app = express();
 
-app.use(cors());
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 //middleware
 app.use(express.json());
