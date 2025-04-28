@@ -22,9 +22,17 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    console.log("Received login request:", req.body); // Debug!
+    console.log("Received login request:", req.body);
 
     const { email, password } = req.body;
+
+    // Validate input first
+    if (!email || !password) {
+      console.log("Missing email or password");
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -39,7 +47,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { _id: user._id, isAdmin: user.isAdmin }, // Consistently use _id
+      { _id: user._id, isAdmin: user.isAdmin },
       process.env.JWT_SECRET,
       {
         expiresIn: "7d",
@@ -47,10 +55,10 @@ export const login = async (req, res) => {
     );
 
     console.log("Login successful");
-    res.json({ token });
+    res.status(200).json({ token });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: error.message || "Server Error" });
+    res.status(500).json({ message: "Internal server error during login" });
   }
 };
 

@@ -23,7 +23,6 @@
     "nodemon": "^3.1.9",
     "user-api": "file:"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GBaga/back-end-food-api.git"
