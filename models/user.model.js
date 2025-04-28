@@ -19,6 +19,15 @@ const UserSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    mobile: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    secondMobile: {
+      type: String,
+      trim: true,
+    },
     isAdmin: {
       type: Boolean,
       default: false,
