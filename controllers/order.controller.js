@@ -150,37 +150,32 @@ export const getAllOrders = async (req, res) => {
 // Update order status (admin only)
 export const updateOrderStatus = async (req, res) => {
   try {
-    // Check if user is admin
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
-
+    const { id } = req.params;
     const { status } = req.body;
 
-    // Validate status
-    const validStatuses = [
+    const order = await Order.findById(id);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // ✅ Validate status manually if needed
+    const allowedStatuses = [
       "pending",
+      "confirmed",
       "preparing",
       "ready",
-      "completed",
+      "delivered",
       "cancelled",
     ];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: "Invalid status" });
-    }
-
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
     }
 
     order.status = status;
-    const updatedOrder = await order.save();
+    await order.save();
 
-    res.status(200).json(updatedOrder);
+    res.status(200).json(order);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error.message);
+    res.status(500).json({ message: "Failed to update order status" });
   }
 };
 
