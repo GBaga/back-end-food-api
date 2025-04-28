@@ -5,9 +5,8 @@ import Product from "../models/product.model.js";
 // Create a new order
 export const createOrder = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id; // ✅ Fix here
 
-    // Get user's cart
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "items.product",
       select: "name price isAvailable",
