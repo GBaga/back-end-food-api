@@ -1,49 +1,61 @@
 import express from "express";
 import mongoose from "mongoose";
-import productRoute from "./routes/product.route.js";
 import cors from "cors";
+import dotenv from "dotenv";
+
+import productRoute from "./routes/product.route.js";
 import authRoute from "./routes/auth.route.js";
 import orderRoute from "./routes/order.route.js";
 import cartRoute from "./routes/cart.route.js";
-import dotenv from "dotenv";
 
 dotenv.config();
 const app = express();
 
+// ✅ Read allowed origins from .env
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 
 app.use(
   cors({
-    origin: process.env.ALLOWED_ORIGINS.split(","),
-    credentials: true,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // only needed if using cookies or auth later
   })
 );
 
-//middleware
+// ✅ Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-//routes
+// ✅ Routes
 app.use("/api/products", productRoute);
 app.use("/api/auth", authRoute);
 app.use("/api/orders", orderRoute);
 app.use("/api/cart", cartRoute);
 
 app.get("/", (req, res) => {
-  res.send("Hello World from Food Api Backend");
+  res.send("Hello World from Food API Backend");
 });
 
-const conString =
-  "mongodb+srv://Admin1:Admin1@backenddb.r5sppeu.mongodb.net/FIRSTAPI?retryWrites=true&w=majority&appName=BackendDB";
+// ✅ MongoDB Connection
+const conString = process.env.MONGODB_URI || "your-default-mongodb-string";
 mongoose
   .connect(conString)
-  .then(() => console.log("Connected!"))
+  .then(() => console.log("Connected to MongoDB!"))
   .catch((error) => {
     console.log("MongoDB Connection Error:", error.message);
   });
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+// ✅ Server start
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
+// Debug
+console.log("ALLOWED_ORIGINS:", allowedOrigins);
 console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
