@@ -23,7 +23,7 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // only needed if using cookies or auth later
+    credentials: true,
   })
 );
 
