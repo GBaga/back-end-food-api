@@ -30,6 +30,13 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
+    console.log("🔑 Login request body:", req.body); // ADD THIS for debugging
+
+    // ✅ Validate that body is received
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ message: "Missing login credentials" });
+    }
+
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -53,7 +60,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({ token });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("🔥 Login error:", error); // better logging
     res.status(500).json({ message: "Internal server error during login" });
   }
 };

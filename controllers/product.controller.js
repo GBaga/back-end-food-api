@@ -2,9 +2,12 @@ import Product from "../models/product.model.js";
 
 const getProducts = async (req, res) => {
   try {
+    console.log("📦 Fetching products..."); // add this
     const products = await Product.find({});
+    console.log("📦 Products fetched:", products.length);
     res.status(200).json({ products });
   } catch (error) {
+    console.error("🔥 Error in getProducts:", error.message); // add this
     res.status(500).json({ message: error.message });
   }
 };
