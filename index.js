@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 
 // ✅ Read allowed origins from .env
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+// const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 
 app.use(
   cors({
@@ -26,6 +26,7 @@ app.use(
     credentials: true,
   })
 );
+// app.use(cors());
 
 // ✅ Middleware
 app.use(express.json());
