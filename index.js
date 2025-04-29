@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 
 // ✅ Read allowed origins from .env
-// const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 
 app.use(
   cors({
