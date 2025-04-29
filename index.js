@@ -42,7 +42,7 @@ app.get("/", (req, res) => {
 });
 
 // ✅ MongoDB Connection
-const conString = process.env.MONGODB_URI || "your-default-mongodb-string";
+const conString = process.env.MONGO_URI || "your-default-mongodb-string";
 mongoose
   .connect(conString)
   .then(() => console.log("Connected to MongoDB!"))
