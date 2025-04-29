@@ -17,15 +17,19 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 app.use(
   cors({
     origin: function (origin, callback) {
+      console.log("Request origin:", origin); // 👈 Add this line
+
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.error("Blocked by CORS:", origin); // 👈 and this
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
   })
 );
+
 // app.use(cors());
 
 // ✅ Middleware
