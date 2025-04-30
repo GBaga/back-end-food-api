@@ -17,20 +17,17 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 app.use(
   cors({
     origin: function (origin, callback) {
-      console.log("Request origin:", origin); // 👈 Add this line
-
+      console.log("Request origin:", origin);
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.error("Blocked by CORS:", origin); // 👈 and this
+        console.error("Blocked by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
   })
 );
-
-// app.use(cors());
 
 // ✅ Middleware
 app.use(express.json());
@@ -46,21 +43,24 @@ app.get("/", (req, res) => {
   res.send("Hello World from Food API Backend");
 });
 
-// ✅ MongoDB Connection
+// ✅ MongoDB Connection (Only once)
 const conString = process.env.MONGO_URI || "your-default-mongodb-string";
 mongoose
-  .connect(conString)
-  .then(() => console.log("Connected to MongoDB!"))
-  .catch((error) => {
-    console.log("MongoDB Connection Error:", error.message);
-  });
+  .connect(conString, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 15000, // wait 15s before failing
+  })
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err.message));
 
 // ✅ Server start
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
 
-// Debug
-console.log("ALLOWED_ORIGINS:", allowedOrigins);
-console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
+// Debug Logs
+console.log("🌍 ALLOWED_ORIGINS:", allowedOrigins);
+console.log("🔐 JWT_SECRET exists:", !!process.env.JWT_SECRET);
+console.log("🌐 MONGO_URI exists:", !!process.env.MONGO_URI);
